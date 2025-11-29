@@ -1,0 +1,10 @@
+{
+	"id": "obsidian-cloud-asset-master",
+	"name": "Cloud Asset Master",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Compress images to WebP, upload to Cloudflare R2, and clean up unused local images.",
+	"author": "achjqz",
+	"authorUrl": "https://github.com/achjqz/obsidian-cloud-asset-master",
+	"isDesktopOnly": false
+}
