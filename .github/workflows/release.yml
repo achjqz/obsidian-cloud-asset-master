@@ -3,30 +3,43 @@ name: Release Plugin
 on:
   push:
     tags:
-      - 'v*'
+      - '*'           # v1.0.0、v2.1.5 等都会触发
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
+    # 关键第1步：给默认 GITHUB_TOKEN 开权限
+    permissions:
+      contents: write           # 必须！允许创建 Release 和上传资产
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      # 关键第2步：必须加 fetch-depth: 0 或者 fetch-tags: true 才能拿到 tag
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          node-version: '18'
+          fetch-depth: 0          # 拉取完整历史和所有 tag
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci                     # 比 npm install 更稳定
 
       - name: Build
         run: npm run build
 
+      # 调试用：确认文件真的生成了（失败时你就能看到日志了）
+      - name: List built files
+        run: |
+          echo "dist 目录内容："
+          ls -la dist || echo "dist 目录不存在！"
+
+      # 关键第3步：升级到 v2，稳定太多
       - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             dist/main.js
@@ -34,5 +47,4 @@ jobs:
             dist/styles.css
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true  
